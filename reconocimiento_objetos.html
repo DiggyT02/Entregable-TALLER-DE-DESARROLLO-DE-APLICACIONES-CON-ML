@@ -25,8 +25,7 @@
         <span><img src="./imagenes/usb.png" alt="usb" style="width: 3rem"/></span>
       </div>
 
-      <div class="text-center mt-5">
-        <h3></h3>
+      <div class="text-center mt-3">
         <div class="border border-2 rounded p-2 mb-3 shadow">
           <div id="video-container" class="text-center">
           </div>
@@ -43,17 +42,29 @@
       let classifier;
       let video;
       let flippedVideo;
+      
       let label = "";
+      let lastLabel = "";
+
       let confidence = 0;
-      let lastLabel = ""; 
       let lastConfidence = 0; 
 
+      /* Objeto para los dialogos */
+      const textos_nivel_confianza = {
+        "alta": "Estoy seguro de que el objeto es ",
+        "media": "Creo que el objeto es ",
+        "baja": "No estoy seguro, pero podría ser "
+      }
+
+      /* Carpeta donde se encuentra el modelo */
       const imageModelURL = "./my_model/";
 
+      //Cargamos el modelo
       function preload() {
         classifier = ml5.imageClassifier(imageModelURL + "model.json");
       }
 
+      //Preparamos el canvas y el video
       function setup() {
         const canvas = createCanvas(320, 240);
         canvas.parent("video-container"); //enviamos el canvas a un contendor padre
@@ -64,20 +75,23 @@
         classifyVideo();
       }
 
+      // Dibujamos el video en el canvas
       function draw() {
         background(0);
         image(flippedVideo, 0, 0);
         fill(255);
         textSize(16);
         textAlign(CENTER);
-      }
+      } 
 
+      // Clasificamos el video
       function classifyVideo() {
         flippedVideo = ml5.flipImage(video);
         classifier.classify(flippedVideo, gotResult);
         flippedVideo.remove(); // Limpiamos la imagen procesada
       }
 
+      // Obtenemos los resultados de la clasificacion
       function gotResult(error, results) {
         if (error) {
           console.error(error);
@@ -86,16 +100,15 @@
 
         // Obtener el label y la confianza de la predicción actual
         label = results[0].label;
-        confidence = results[0].confidence * 100; // Convertimos la confianza a porcentaje
+        confidence = nf((results[0].confidence * 100), 0, 0); // Convertimos la confianza a porcentaje
 
-        if (label !== lastLabel && confidence >= 80) {
+        if (label !== lastLabel && confidence >= 99) {
           // Mostrar el label en el canvas
           document.getElementById("prediction").innerText = label;
-
-          // Si la confianza es mayor al 80%, hablar
-          if (confidence >= 80) {
-            speakResult(`La predicción es: ${label}`);
-          }
+          console.log(confidence)
+          console.log(label)
+          console.log(90>=80)
+          speakResult(confidence, label);
 
           // Actualizar el último label y confianza
           lastLabel = label;
@@ -106,7 +119,23 @@
         classifyVideo();
       }
 
-      function speakResult(text) {
+      // Función para hablar el resultado
+      function speakResult(nivel_confianza, objeto) {
+        let text = "";
+        let confianza = parseInt(nivel_confianza)
+
+        console.log(confianza>80)
+        
+        if(confianza > 80) {
+          text = textos_nivel_confianza.alta + objeto;
+        }
+
+        if (confianza <= 80 && confianza > 50) {
+          text = textos_nivel_confianza.media + objeto;
+        } else {
+          text = textos_nivel_confianza.baja + objeto;
+        }
+
         if ("speechSynthesis" in window) {
           const utterance = new SpeechSynthesisUtterance(text);
           utterance.lang = "es-ES"; // Usamos español
@@ -115,6 +144,8 @@
           alert("Tu navegador no soporta sintetizador de voz");
         }
       }
+    
+
     </script>
   </body>
 </html>
