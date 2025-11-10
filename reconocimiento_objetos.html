@@ -3,79 +3,92 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Reconocimiento de Objetos - Teachable Machine</title>
     <!-- FONT AWESOME -->
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   </head>
   <body>
-    <div>Teachable Machine Image Model - p5.js and ml5.js</div>
-    
+    <div>Teachable Machine Image Model - p5.js y ml5.js</div>
 
-
-    <!-- CDN TEACHEBLE MACHINE -->
+    <!-- CDN PARA TEACHABLE MACHINE -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/p5.min.js"></script>
     <script src="https://unpkg.com/ml5@0.5.0/dist/ml5.min.js"></script>
     
-    <!-- Funcionalidad -->
+    <!-- FUNCIONALIDAD PRINCIPAL -->
     <script type="text/javascript">
-      // Classifier Variable
+      // Variable para el clasificador de inteligencia artificial
       let classifier;
-      // Model URL
+      // URL del modelo entrenado con Teachable Machine
       let imageModelURL = "./my_model/";
 
-      // Video
+      // Variables para el video de la cámara
       let video;
-      let flippedVideo;
-      // To store the classification
+      let flippedVideo; // Video reflejado (como espejo)
+      
+      // Almacena la etiqueta (nombre del objeto) detectada
       let label = "";
 
-      // Load the model first
+      // CARGAR EL MODELO ANTES DE EMPEZAR
       function preload() {
         classifier = ml5.imageClassifier(imageModelURL + "model.json");
       }
 
+      // CONFIGURACIÓN INICIAL
       function setup() {
+        // Crear lienzo de 320x260 píxeles
         createCanvas(320, 260);
-        // Create the video
+        
+        // Activar la cámara web
         video = createCapture(VIDEO);
         video.size(320, 240);
-        video.hide();
+        video.hide(); // Ocultar el video original (solo mostramos en canvas)
 
+        // Reflejar la imagen como en un espejo
         flippedVideo = ml5.flipImage(video);
-        // Start classifying
+        
+        // Comenzar a clasificar lo que ve la cámara
         classifyVideo();
       }
 
+      // DIBUJAR EN PANTALLA (se ejecuta 60 veces por segundo)
       function draw() {
-        background(0);
-        // Draw the video
+        background(0); // Fondo negro
+        
+        // Mostrar el video reflejado
         image(flippedVideo, 0, 0);
 
-        // Draw the label
-        fill(255);
+        // Mostrar el nombre del objeto detectado
+        fill(255); // Texto blanco
         textSize(16);
         textAlign(CENTER);
-        text(label, width / 2, height - 4);
+        text(label, width / 2, height - 4); // Centrado en la parte inferior
       }
 
-      // Get a prediction for the current video frame
+      // CLASIFICAR EL FOTOGRAMA ACTUAL
       function classifyVideo() {
         flippedVideo = ml5.flipImage(video);
         classifier.classify(flippedVideo, gotResult);
-        flippedVideo.remove();
+        flippedVideo.remove(); // Liberar memoria
       }
 
-      // When we get a result
+      // CUANDO EL MODELO DA UN RESULTADO
       function gotResult(error, results) {
-        // If there is an error
+        
+        // Si hay un error, mostrarlo en consola
         if (error) {
-          console.error(error);
+          console.error("Error en la clasificación:", error);
           return;
         }
-        // The results are in an array ordered by confidence.
-        // console.log(results[0]);
+        
+        // results[0] es el objeto con mayor probabilidad
+        // results[0].label = nombre del objeto (ej: "llave", "tarjeta")
+        // results[0].confidence = nivel de confianza (0 a 1)
         label = results[0].label;
-        // Classifiy again!
+        
+        // Mostrar resultado en consola (opcional)
+        // console.log("Detectado:", results[0]);
+
+        // Seguir clasificando el siguiente fotograma
         classifyVideo();
       }
     </script>
