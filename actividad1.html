@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Actividad 1 - Identificar imagen</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="styles.css">
   <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
 </head>
 <body>
@@ -25,6 +25,8 @@
   </div>
 
   <script>
+
+    
 // 1. Creamos el clasificador usando MobileNet (modelo preentrenado con 1000 clases)
 const classifier = ml5.imageClassifier('MobileNet', modelLoaded);
 
