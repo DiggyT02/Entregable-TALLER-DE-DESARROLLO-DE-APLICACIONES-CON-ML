@@ -34,22 +34,20 @@
       canvas.addEventListener('mouseup', () => drawing = false);
       canvas.addEventListener('mousemove', draw);
 
-      canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing = true; });
-      canvas.addEventListener('touchend', () => drawing = false);
-      canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e.touches[0]); });
-
+    //solo dibuja si se hace click
       function draw(e) {
         if (!drawing) return;
-        ctx.lineWidth = 5;
-        ctx.lineCap = 'round';
-        ctx.strokeStyle = '#1a73e8';
+        ctx.lineWidth = 5;// Grosor del trazo
+        ctx.lineCap = 'round';// Punta redonda
+        ctx.strokeStyle = '#1a73e8';// Color azul 
 
         ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
-        ctx.stroke();
-        ctx.beginPath();
+        ctx.stroke();// Dibuja la línea
+        ctx.beginPath(); //Reinicia la linea
         ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
       }
 
+      //Limpia el canvas
       function clearCanvas() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
