@@ -22,52 +22,64 @@
 
   <script>
     const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    let drawing = false;
+const ctx = canvas.getContext('2d');
+let drawing = false;  // Bandera: ¿estoy dibujando?
 
-    // Dibujo
-    canvas.addEventListener('mousedown', () => drawing = true);
-    canvas.addEventListener('mouseup', () => drawing = false);
-    canvas.addEventListener('mousemove', draw);
+// --- Eventos para ratón ---
+canvas.addEventListener('mousedown', () => drawing = true);
+canvas.addEventListener('mouseup', () => drawing = false);
+canvas.addEventListener('mousemove', draw);
 
-    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing = true; });
-    canvas.addEventListener('touchend', () => drawing = false);
-    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e.touches[0]); });
+// --- Eventos para pantallas táctiles ---
+canvas.addEventListener('touchstart', (e) => { 
+  e.preventDefault(); 
+  drawing = true; 
+});
+canvas.addEventListener('touchend', () => drawing = false);
+canvas.addEventListener('touchmove', (e) => { 
+  e.preventDefault(); 
+  draw(e.touches[0]);  // Usamos la posición del dedo
+});
+// Función principal de dibujo
+function draw(e) {
+  if (!drawing) return;  // Si no estoy presionando, no dibujo
+  
+  ctx.lineWidth = 5;           // Grosor del trazo
+  ctx.lineCap = 'round';       // Punta redondeada
+  ctx.strokeStyle = '#1a73e8'; // Color azul
 
-    function draw(e) {
-      if (!drawing) return;
-      ctx.lineWidth = 5;
-      ctx.lineCap = 'round';
-      ctx.strokeStyle = '#1a73e8';
+  // Dibujamos una línea hacia donde está el cursor/dedo
+  ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+  ctx.stroke();                // Dibujamos el trazo
+  ctx.beginPath();             // Reiniciamos el path
+  ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+}
+function clearCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);  // Borra todo
+}
 
-      ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
-    }
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+  e.preventDefault();  // Evita recargar la página
+  
+  const user = document.getElementById('username').value;
+  const pass = document.getElementById('password').value;
+  const message = document.getElementById('message');
 
-    function clearCanvas() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
+  // Convertimos el canvas a imagen (data URL)
+  const canvasData = canvas.toDataURL();
+  
+  // Si el canvas está vacío, canvas.toDataURL() devuelve "data:,"
+  const hasDrawing = canvasData !== 'data:,';
 
-    // Login (credenciales fijas + dibujo obligatorio)
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const user = document.getElementById('username').value;
-      const pass = document.getElementById('password').value;
-      const message = document.getElementById('message');
-
-      const canvasData = canvas.toDataURL();
-      const hasDrawing = canvasData !== 'data:,' && !canvasData.includes('blank');
-
-      if (user === 'admin' && pass === '1234' && hasDrawing) {
-        message.style.color = 'green';
-        message.innerHTML = '¡Login exitoso! Bienvenido.';
-      } else {
-        message.style.color = 'red';
-        message.innerHTML = 'Credenciales incorrectas o dibujo faltante.';
-      }
-    });
+  // Credenciales correctas: admin / 1234 + debe haber dibujo
+  if (user === 'admin' && pass === '1234' && hasDrawing) {
+    message.style.color = 'green';
+    message.innerHTML = '¡Login exitoso! Bienvenido.';
+  } else {
+    message.style.color = 'red';
+    message.innerHTML = 'Credenciales incorrectas o dibujo faltante.';
+  }
+});
   </script>
 </body>
 </html>
