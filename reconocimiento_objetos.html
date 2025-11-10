@@ -3,119 +3,118 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <!-- FONT AWESOME -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Reconocimiento de objetos</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+    />
   </head>
   <body>
-    <div>Teachable Machine Image Model - p5.js y ml5.js</div>
-    <main>
-        <section>
-            <div class="container mt-5">
-                <h2 class="text-center">Muestre a su camara una de los siguientes objetos</h2>
-                <div class="contaier-icons d-flex align-item-center gap-3 justify-content-center">
-                    <span>
-                        <i class="fa-solid fa-credit-card fs-2"></i>
-                    </span>
-                    
-                    <span>
-                        <i class="fa-solid fa-key fs-1"></i>
-                    </span>
-                    
-                    <span>
-                        <img src="./imagenes/llama.png" alt="" style="width: 3rem;">
-                    </span>
-                    
-                    <span>
-                        <i class="fa-solid fa-book fs-1"></i>
-                    </span>
-                    
-                    <span>
-                        <img src="./imagenes/usb.png" alt="" style="width: 3rem;">
-                    </span>
-                </div>
-            </div>
-        </section>
-    </main>
+    <div class="container mt-4 d-flex justify-content-center flex-column">
+      <h2 class="text-center">Reconocimiento de Objetos</h2>
+      <div class="border"></div>
+      <div class="d-flex justify-content-center gap-4 mt-4">
+        <span><i class="fa-solid fa-credit-card fs-2"></i></span>
+        <span><i class="fa-solid fa-key fs-1"></i></span>
+        <span><img src="./imagenes/llama.png" alt="llama" style="width: 3rem"/></span>
+        <span><i class="fa-solid fa-book fs-1"></i></span>
+        <span><img src="./imagenes/usb.png" alt="usb" style="width: 3rem"/></span>
+      </div>
 
+      <div class="text-center mt-5">
+        <h3></h3>
+        <div class="border border-2 rounded p-2 mb-3 shadow">
+          <div id="video-container" class="text-center">
+          </div>
+        </div>
+        <p id="prediction" class="fs-4"></p>
+      </div>
+    </div>
 
-    <!-- CDN PARA TEACHABLE MACHINE -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/p5.min.js"></script>
     <script src="https://unpkg.com/ml5@0.5.0/dist/ml5.min.js"></script>
-    
-    <!-- Funcionalidad -->
+
     <script type="text/javascript">
-      // Variable para el clasificador de inteligencia artificial
       let classifier;
-      // URL del modelo entrenado con Teachable Machine
-      let imageModelURL = "./my_model/";
-
-      // Variables para el video de la cámara
       let video;
-      let flippedVideo; // Video reflejado (como espejo)
-      
-      // Almacena la etiqueta (nombre del objeto) detectada
+      let flippedVideo;
       let label = "";
+      let confidence = 0;
+      let lastLabel = ""; // Para almacenar el último label procesado
+      let lastConfidence = 0; // Para almacenar la última confianza
 
-      // CARGAR EL MODELO ANTES DE EMPEZAR
+      const imageModelURL = "./my_model/";
+
       function preload() {
         classifier = ml5.imageClassifier(imageModelURL + "model.json");
       }
 
-      // CONFIGURACIÓN INICIAL
       function setup() {
-        // Crear lienzo de 320x260 píxeles
-        createCanvas(320, 260);
-        
-        // Activar la cámara web
+        const canvas = createCanvas(320, 240);
+        canvas.parent("video-container"); // Asegúrate de tener el contenedor con el id 'video-container'
         video = createCapture(VIDEO);
         video.size(320, 240);
-        video.hide(); // Ocultar el video original (solo mostramos en canvas)
-
-        // Reflejar la imagen como en un espejo
+        video.hide();
         flippedVideo = ml5.flipImage(video);
-        
-        // Comenzar a clasificar lo que ve la cámara
         classifyVideo();
       }
 
-      // DIBUJAR EN PANTALLA (se ejecuta 60 veces por segundo)
       function draw() {
-        background(0); // Fondo negro
-        
-        // Mostrar el video reflejado
+        background(0);
         image(flippedVideo, 0, 0);
-
-        // Mostrar el nombre del objeto detectado
-        fill(255); // Texto blanco
+        fill(255);
         textSize(16);
         textAlign(CENTER);
-        text(label, width / 2, height - 4); // Centrado en la parte inferior
       }
 
-      // CLASIFICAR EL FOTOGRAMA ACTUAL
       function classifyVideo() {
         flippedVideo = ml5.flipImage(video);
         classifier.classify(flippedVideo, gotResult);
-        flippedVideo.remove(); // Liberar memoria
+        flippedVideo.remove(); // Limpiamos la imagen procesada
       }
 
-      // CUANDO EL MODELO DA UN RESULTADO
       function gotResult(error, results) {
-        
-        // Si hay un error, mostrarlo en consola
         if (error) {
-          console.error("Error en la clasificación:", error);
+          console.error(error);
           return;
         }
-        
-       
+
+        // Obtener el label y la confianza de la predicción actual
         label = results[0].label;
-        
-      
+        confidence = results[0].confidence * 100; // Convertimos la confianza a porcentaje
+
+        if (label !== lastLabel && confidence >= 80) {
+          // Mostrar el label en el canvas
+          document.getElementById("prediction").innerText = label;
+
+          // Si la confianza es mayor al 80%, hablar
+          if (confidence >= 80) {
+            speakResult(`La predicción es: ${label}`);
+          }
+
+          // Actualizar el último label y confianza
+          lastLabel = label;
+          lastConfidence = confidence;
+        }
+
+        // Continuar clasificando el siguiente frame
         classifyVideo();
       }
-    
+
+      function speakResult(text) {
+        if ("speechSynthesis" in window) {
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = "es-ES"; // Usamos español
+          speechSynthesis.speak(utterance);
+        } else {
+          alert("Tu navegador no soporta sintetizador de voz");
+        }
+      }
     </script>
   </body>
 </html>
