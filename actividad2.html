@@ -52,6 +52,12 @@
         ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
 
+      const usuarios = {
+      "diggy": "1234",
+      "ayala": "romo",
+      "tony": "felix"
+    };
+
       // Login 
       document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -62,14 +68,20 @@
         const canvasData = canvas.toDataURL();
         const hasDrawing = canvasData !== 'data:,' && !canvasData.includes('blank');
 
-        if (user === 'admin' && pass === '1234' && hasDrawing) {
-          message.style.color = 'green';
-          message.innerHTML = '¡Login exitoso! Bienvenido.';
+        if (usuarios[user] && usuarios[user] === pass && hasDrawing) {
+        message.style.color = '#2ecc71';
+        message.innerHTML = `¡Login exitoso! Bienvenid@ <strong>${user}</strong> 🎉`;
+      } else {
+        message.style.color = '#e74c3c';
+        if (!hasDrawing) {
+          message.innerHTML = 'Debes realizar un dibujo para iniciar sesión.';
+        } else if (!usuarios[user]) {
+          message.innerHTML = 'Usuario no encontrado.';
         } else {
-          message.style.color = 'red';
-          message.innerHTML = 'Credenciales incorrectas o dibujo faltante.';
+          message.innerHTML = 'Contraseña incorrecta o dibujo faltante.';
         }
-      });
+      }
+    });
     </script>
   </body>
   </html>
