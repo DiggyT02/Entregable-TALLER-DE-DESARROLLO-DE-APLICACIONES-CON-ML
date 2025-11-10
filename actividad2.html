@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Actividad 2 - Login con dibujo</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Actividad 2: Login seguro</h1>
+    <form id="loginForm">
+      <input type="text" id="username" placeholder="Usuario" required><br><br>
+      <input type="password" id="password" placeholder="Contraseña" required><br><br>
+      <canvas id="canvas" width="200" height="200" style="border:2px solid #1a73e8; background:#fff;"></canvas>
+      <button type="button" onclick="clearCanvas()">Borrar</button><br><br>
+      <button type="submit">Iniciar sesión</button>
+    </form>
+    <p id="message"></p>
+    <a href="index.html">← Volver</a>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+
+    // Dibujo
+    canvas.addEventListener('mousedown', () => drawing = true);
+    canvas.addEventListener('mouseup', () => drawing = false);
+    canvas.addEventListener('mousemove', draw);
+
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing = true; });
+    canvas.addEventListener('touchend', () => drawing = false);
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e.touches[0]); });
+
+    function draw(e) {
+      if (!drawing) return;
+      ctx.lineWidth = 5;
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = '#1a73e8';
+
+      ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+    }
+
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // Login (credenciales fijas + dibujo obligatorio)
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const user = document.getElementById('username').value;
+      const pass = document.getElementById('password').value;
+      const message = document.getElementById('message');
+
+      const canvasData = canvas.toDataURL();
+      const hasDrawing = canvasData !== 'data:,' && !canvasData.includes('blank');
+
+      if (user === 'admin' && pass === '1234' && hasDrawing) {
+        message.style.color = 'green';
+        message.innerHTML = '¡Login exitoso! Bienvenido.';
+      } else {
+        message.style.color = 'red';
+        message.innerHTML = 'Credenciales incorrectas o dibujo faltante.';
+      }
+    });
+  </script>
+</body>
+</html>
