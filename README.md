@@ -19,10 +19,33 @@ para usar la aplicacion solamente necesitas conexión a internet, y una camara p
 En este archivo podemos encontrar un formulario con un imput para seleccionar imagenes. En esta parte subimos la imagen a la cual queremos hacer la predicción y enviamos la imagen para ver los resultados.
 Luego de ello nos deberia aparecer una seccion donde se muestren los resultados:
 
-[!Imagen resultado de la prediccion](./imagenes/resultado.png)
+![Imagen resultado de la prediccion](./imagenes/resultado.png)
 
 ### `actividad2.html`
-El login con I.A. 
+El login con I.A. Para probar esta funcionalidad. Primero se debe tener en cuenta que cada usuario ya tiene su clave y contrasenia definido por el sistema.
+usuarios disponibles:
+```js
+usuarios = {
+    diggy: {
+        contrasenia: "1234",
+        dibujo: "sun",      // Sol
+    },
+    ayala: {
+        contrasenia: "romo",
+        dibujo: "chair",    // Silla
+    },
+    tony: {
+        contrasenia: "felix",
+        dibujo: "tree",     // Arbol
+    },
+};
+```
+Con esto aclarado continuamos:
+
+Al entrar a la vista se puede apreciar un formulario con un canvas. Se ingresa en el nombre de usuario en el input, la contrasenia en el imput contrasenia y se realiza el dibujo correspondiente a cada usuario
+
+`Ejemplo:`
+![Imagen de como insertar los datos en el formulario](./imagenes/howToLoadForm.png)
 
 ### `reconocimiento_objetos.html`
 Para usar esta funcion si o si necesitamos una camara y un navegador web con soporte para sintetización de voz.
@@ -33,4 +56,4 @@ Al abrir el archivo inmediatamente se abrira la camara y comenzara a realizar pr
 - Llave.
 prueba del funcionamiento:
 
-[!Imagen del funcionamiento](./imagenes/resultados.png)
+![Imagen del funcionamiento](./imagenes/resultados.png)
